@@ -8,7 +8,7 @@ import json
 
 
 def main(q):
-    numberOfPages = "5"
+    numberOfPages = "2"
     chromePath = config["chromeDriver"]
     defaultdownDir = config["downloadFolder"]
     apikey = config["API-KEY"]
@@ -40,14 +40,19 @@ def main(q):
                 try:
                     print("trying to load page based on scopus")
                     doi = list_of_dois[index]
+                    print(doi)
                     doiUrl = getRequestURL(q=doi,start=0)
+                    print(doiUrl)
                     seleniumWayOfExtraction(driver=driver,pdf_url=doiUrl)
+                    print(1)
                     soup_doi = getSoupObject(driver.page_source)
-                    tag = [forEachSoup(x) for x in soup.find("div",{"id":"gs_res_ccl_mid"}).find_all("div",{"class":"gs_r gs_or gs_scl"})][0].get("linkTag")
+                    print(2)
+                    tag = [forEachSoup(x) for x in soup_doi.find("div",{"id":"gs_res_ccl_mid"}).find_all("div",{"class":"gs_r gs_or gs_scl"})][0].get("linkTag")
+                    print(tag)
                     ClickById(driver=driver,id = tag)
                     ClickByclassName(driver=driver)
-                except:
-                    pass
+                except Exception as e:
+                    print(e)
 
             try:
                 seleniumWayOfExtraction(driver,result["downloadableLink"])
@@ -119,23 +124,23 @@ def main(q):
 
 
 if __name__ == "__main__":
-    mainList = [
-        {
-        "title":"Metal organic framework based color pdf",
-        "timeTaken":1014,
-        "numberOfFiles":33
-        }
-    ]
-    # parser = argparse.ArgumentParser()
-    # parser.add_argument('-f', '--keyword')
-    # # parser.add_argument('-g', '--numberOfPDF')
-    # args = parser.parse_args()
-    # q= args.keyword
-    # # numberOfPdf = args.numberOfPDF
-    # print(q)
-    # print(numberOfPdf)
+    # mainList = [
+    #     {
+    #     "title":"Metal organic framework based color pdf",
+    #     "timeTaken":1014,
+    #     "numberOfFiles":33
+    #     }
+    # ]
+    # # parser = argparse.ArgumentParser()
+    # # parser.add_argument('-f', '--keyword')
+    # # # parser.add_argument('-g', '--numberOfPDF')
+    # # args = parser.parse_args()
+    # # q= args.keyword
+    # # # numberOfPdf = args.numberOfPDF
+    # # print(q)
+    # # print(numberOfPdf)
     keys = [
-        # "Metal organic framework based color pdf",
+        "Metal organic framework based color",
         # "Structured surfactant systems pdf",
         # "Hydrocolloids and their properties in foods and dairy pdf",
         # "Dairy technology pdf",
@@ -143,25 +148,25 @@ if __name__ == "__main__":
         # "Tensile strength of hair and fibers pdf",
         # "Cyclic voltammetry pdf",
         # "Mechanism of formation and recurrence of dandruff pdf",
-        #"chemical properties of hair pdf",
-        #"Mechanism of bleaching pdf"
-        "hair"
+        # "chemical properties of hair pdf",
+        # "Mechanism of bleaching pdf"
+        # "hair"
         ]
-    for q in keys:
-        lenth = 0
-        start_time = datetime.now() 
-        lenth = main(q=q)
-        end_time = datetime.now() 
-        time_difference = (end_time - start_time).total_seconds()
-        mainList.append(
-            {
-        "title":q,
-        "timeTaken":time_difference,
-        "numberOfFiles":lenth
-            }
-        ) 
-    with open("output_keyWords.json", "w") as fout:
-        json.dump(mainList, fout, indent=4)
+    # for q in keys:
+    #     lenth = 0
+    #     start_time = datetime.now() 
+    #     lenth = main(q=q)
+    #     end_time = datetime.now() 
+    #     time_difference = (end_time - start_time).total_seconds()
+    #     mainList.append(
+    #         {
+    #     "title":q,
+    #     "timeTaken":time_difference,
+    #     "numberOfFiles":lenth
+    #         }
+    #     ) 
+    # with open("output_keyWords.json", "w") as fout:
+    #     json.dump(mainList, fout, indent=4)
 
 
 
