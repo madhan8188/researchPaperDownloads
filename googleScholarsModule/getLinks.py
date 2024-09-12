@@ -4,6 +4,74 @@ import re
 import time
 from random import randint
 
+def getRefUrl(origin,params):
+    req = requests.models.PreparedRequest()
+    req.prepare_url(origin, params)
+    return req.url
+    
+
+
+
+def sementic(query,pageNumber):
+    params = {
+        "year[0]":2021,
+        "year[1]":2024,
+        "q":query,
+        "sort":"relevance",
+        "pdf":True
+    }
+    origin = "https://www.semanticscholar.org/search"
+
+    headers = {
+        'accept': '*/*',
+        'accept-language': 'en-GB,en;q=0.9,en-US;q=0.8,hi;q=0.7,ta;q=0.6',
+        'cache-control': 'no-cache,no-store,must-revalidate,max-age=-1',
+        'content-type': 'application/json',
+        # 'cookie': 's2Exp=new_ab_framework_aa%3D-control%26pdp_citation_and_reference_paper_cues%3D-enable_citation_and_reference_paper_cues%26venues%3D-enable_venues%26reader_link_styling%3D-control%26topics_beta3%3D-topics_beta3%26alerts_aa_test%3D-control%26personalized_author_card_cues%3D-control%26term_understanding%3D-control%26aa_user_based_test%3D-control%26paper_cues%3D-all_paper_cues%26new_ab_framework_mock_ab%3D-control%26aa_stable_hash_session_test%3Dtest; tid=rBIABmbicOaiowALBR+cAg==; _gcl_au=1.1.910869331.1726116071; sid=25b98024-8aac-4f8c-a343-c129368cac13; _ga=GA1.1.367588128.1726116071; __hstc=132950225.7980d4f9ab8f056700671ef23117af68.1726116071649.1726116071649.1726116071649.1; hubspotutk=7980d4f9ab8f056700671ef23117af68; __hssrc=1; pv2more=1726116085; pv2more10s=1726116085; aws-waf-token=7daa3c46-5225-4416-ab3e-389482151c2e:HgoAk8El+44AAAAA:55VpN/fU2CCPkHhi8K1b2TcAsm7dttSy53cvzy4VVyDkihrFrEO2g8g7GCe3QpzKRyxkqBIEpP8XRzmNSGKUtnVe4OXwKpy/lhLV4SSWOuR5JtoDGL4gcDO2nsHZ8NVxUrKBdRnuy00plUq+jJ6FcqgFmW8QC8vwwxyf3YaBx7/ZKqPmew1Z+tsndTANXZSIT9q5wab7RHM+qIO1xi5c90m21AEqhCUW; pvSession=5; tisestart=1726118941; _ga_H7P4ZT52H5=GS1.1.1726116071.1.1.1726118949.49.0.0',
+        'origin': 'https://www.semanticscholar.org',
+        'priority': 'u=1, i',
+        'referer': getRefUrl(origin=origin,params=params),
+        'sec-ch-ua': '"Not)A;Brand";v="99", "Google Chrome";v="127", "Chromium";v="127"',
+        'sec-ch-ua-mobile': '?0',
+        'sec-ch-ua-platform': '"Linux"',
+        'sec-fetch-dest': 'empty',
+        'sec-fetch-mode': 'cors',
+        'sec-fetch-site': 'same-origin',
+        'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36',
+        'x-s2-client': 'webapp-browser',
+        'x-s2-ui-version': '53003fbcd5add31d1897996146f69e1495789ae8',
+    }
+
+    json_data = {
+        'queryString': query,
+        'page': pageNumber,
+        'pageSize': 10,
+        'sort': 'relevance',
+        'authors': [],
+        'coAuthors': [],
+        'venues': [],
+        'yearFilter': {
+            'min': 2021,
+            'max': 2024,
+        },
+        'requireViewablePdf': True,
+        'fieldsOfStudy': [],
+        'hydrateWithDdb': True,
+        'includeTldrs': True,
+        'performTitleMatch': True,
+        'includeBadges': True,
+        'getQuerySuggestions': False,
+        'cues': [
+            'CitedByLibraryPaperCue',
+            'CitesYourPaperCue',
+            'CitesLibraryPaperCue',
+        ],
+        'includePdfVisibility': True,
+    }
+
+    response = requests.post('https://www.semanticscholar.org/api/1/search', headers=headers, json=json_data)
+    return response
+
 def get_list_of_dois(API_KEY,q,nextUrl):
     headers = {
         'X-ELS-APIKey': API_KEY,

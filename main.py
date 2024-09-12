@@ -112,8 +112,33 @@ def main(q):
             except Exception as e:
                 print(e)
         count = count+1
-
         time.sleep(randint(5,10))
+    pageNUmber = 1
+    sr = sementic(query=q,pageNumber=pageNUmber)
+    if sr.status_code == 200:
+        totalPages = sr.json()["totalPages"]
+        data = sr.json()
+        time.sleep(randint(80,120))
+        while (pageNUmber < totalPages) and (sr.status_code == 200):
+            print(pageNUmber)
+            urls = [
+                        results.get("openAccessInfo", {})
+                            .get("location", {})
+                            .get("url") 
+                        for results in data.get("results", []) 
+                        if results.get("openAccessInfo") 
+                        and results["openAccessInfo"].get("location") 
+                        and results["openAccessInfo"]["location"].get("url")
+                    ]
+            for url in urls:
+                seleniumWayOfExtraction(driver,url)
+                time.sleep(randint(30,60))
+            time.sleep(randint(80,120))
+            sr = sementic(query=q,pageNumber=pageNUmber)
+            data = sr.json()
+            
+            print("length of data",len(data))
+            pageNUmber += 1
     driver.quit()
     with open(f"{q.replace('/','').replace(' ','_')}.json", "w") as fout:
         json.dump(results, fout, indent=4)
