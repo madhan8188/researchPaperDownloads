@@ -14,8 +14,8 @@ def getRefUrl(origin,params):
 
 def sementic(query,pageNumber):
     params = {
-        "year[0]":2021,
-        "year[1]":2024,
+        # "year[0]":2021,
+        # "year[1]":2024,
         "q":query,
         "sort":"relevance",
         "pdf":True
@@ -50,10 +50,11 @@ def sementic(query,pageNumber):
         'authors': [],
         'coAuthors': [],
         'venues': [],
-        'yearFilter': {
-            'min': 2021,
-            'max': 2024,
-        },
+        'yearFilter':None,
+        #   {
+            # 'min': 2021,
+            # 'max': 2024,
+        # },
         'requireViewablePdf': True,
         'fieldsOfStudy': [],
         'hydrateWithDdb': True,
