@@ -19,6 +19,19 @@ def ClickByclassName(driver):
     WebDriverWait(driver, 30).until(ec.element_to_be_clickable((By.CLASS_NAME, "ViewPDF"))).click()
     return driver
 
+def ClickByxpath(driver):
+    WebDriverWait(driver, 30).until(ec.element_to_be_clickable((By.XPATH, '''//*[@id="gs_res_ccl_mid"]/div/div[1]/div/div/a[1]'''))).click()
+    return driver
+
+
+def CheckFile(folder_path):
+    files = os.listdir(folder_path)
+    print(files)
+    if len(files) == 1:
+        shutil.move(os.path.join(folder_path,files[0]) ,os.path.join(folder_path.replace("/t",""),os.path.basename(files[0])))
+        return True
+    else:
+        return False
 
 
 def CreateDirectory(directory):

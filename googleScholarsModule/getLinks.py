@@ -4,12 +4,34 @@ import re
 import time
 from random import randint
 
+def pdfFileName(content):
+    pattern = r'filename\*?=.*?(?:UTF-8\'\'|)([\w\.-]+)'
+
+    # Perform the search
+    match = re.search(pattern, content)
+
+    # Extract the filename if a match is found
+    if match:
+        filename = match.group(1)
+        return filename
+    else:
+        print("Filename not found.")
+        return None
+
 def getRefUrl(origin,params):
     req = requests.models.PreparedRequest()
     req.prepare_url(origin, params)
     return req.url
     
 
+def getTitleSuggestions(title):
+    base_url = 'https://api.crossref.org/works'
+    params = {
+            'query.bibliographic': title,
+            'rows': 100
+        }
+    response = requests.get(base_url, params=params)
+    return response
 
 
 def sementic(query,pageNumber):
@@ -115,13 +137,11 @@ def hrefDOI(soup):
 def getdoi(title):
     url = "https://api.crossref.org/works"
     params = {
-        "query.title": title,
-        "rows": 1
+        "query.title": title
     }
     
     response = requests.get(url, params=params)
     data = response.json()
-    
     if data["message"]["items"]:
         return data["message"]["items"][0]["DOI"]
     else:
@@ -195,6 +215,27 @@ def schiHub(link):
 
 
 def requestGoogleScholar(q,start):
+    cookies = {
+    'SEARCH_SAMESITE': 'CgQIz5sB',
+    'GSP': 'LM=1721320033:S=sOcZ5ASf37IEyhQZ',
+    'HSID': 'Aglz7LCwUFNeMO0JL',
+    'SSID': 'AAVUiDI-nNttOibZP',
+    'APISID': 'mZ6ddqfyC4F_pzK5/AP-_qUut_ZgW-yicG',
+    'SAPISID': 'BU1c_Pnut09wwfrP/A--924K1uxvl_F-4O',
+    '__Secure-1PAPISID': 'BU1c_Pnut09wwfrP/A--924K1uxvl_F-4O',
+    '__Secure-3PAPISID': 'BU1c_Pnut09wwfrP/A--924K1uxvl_F-4O',
+    'OGPC': '19031986-1:',
+    'SID': 'g.a000nwjdidtZCyzj8NW1TmTqDlLGC-6nS1wU2okkJrTvpbesq4LKsxEPPxDCPoDrKhMugwLWNAACgYKARwSARMSFQHGX2MiEWCT-xtJPhPIqykp6PYRZRoVAUF8yKrrXr_YoeDL5kzQli2FM7SX0076',
+    '__Secure-1PSID': 'g.a000nwjdidtZCyzj8NW1TmTqDlLGC-6nS1wU2okkJrTvpbesq4LKVAre8bdVcO7j4oITq_QPEgACgYKARESARMSFQHGX2MiBES2xlssiAgAcyYWIl6FHRoVAUF8yKrhJpnd5IslBxTvC24LC8St0076',
+    '__Secure-3PSID': 'g.a000nwjdidtZCyzj8NW1TmTqDlLGC-6nS1wU2okkJrTvpbesq4LKj2ziQ0UpQEQ_NyYYGYfLUgACgYKARMSARMSFQHGX2MiQER7xlcxl1beQ9tGCDdUtRoVAUF8yKq9Tbq2FJR8SG15dv6WEbJ00076',
+    'AEC': 'AVYB7cro0GT772XV8vs1MRTiO1SfSkqJ2V_plXPYrbaA2HTzgBYUk4B8tqg',
+    '__Secure-1PSIDTS': 'sidts-CjIBQlrA-ENJGrDU0o2iB22L_-JBICcp_F5nuRg3sSVnp28SfgwQuY71vEOzOoX-IJMfPBAA',
+    '__Secure-3PSIDTS': 'sidts-CjIBQlrA-ENJGrDU0o2iB22L_-JBICcp_F5nuRg3sSVnp28SfgwQuY71vEOzOoX-IJMfPBAA',
+    'NID': '517=E0CQk8ZZbTfZurpJ4Ib7l0jHQLe5jzkJIUd_LXfxIKTaVUMFoqz3ldTuYigV55ow00esVfsdp1wB3d8Lfyvf8n9pzHfylCd4081tQk28XGjlqIUCBy1iU0mBENoeuTeJDRsUEPuJeVsig8iYb1s9AjMyAVOHRX-dW-Fgaib-5xDrol0pfrZW9Gpj7sWkyGu6joTq6eXCkpPKE-EfeRdaji5x9jNZUbEfTs4e98xIKckXX2LJwlAYX1GeekGHU-tMN9J4TMNyIK5p-4_gmiXWP5fS40l6-ApiDG7dqX7Bs5pCxjwRNIRNtJ8zgpDq71ieQ3lnYgsC-YFven8XukaHnNoULA8N9PTe0BaqFG13cTvoyeCDpEu156hMWMqauYsdqRpz6ZoUQVk57Y4jr3NY2QEoLVfcYT_M-uZZFa5xI7qRQm0MHIWluRDVJ9-_VBfdfzRg73T_s7hcA18mdcjolBwSgvJOY4SStHxF-FRD8vzrOwH7HcwPSb7arRzzJGNQfmW3zGtqfJIX4XDbce37hxxGe3PNP9TenfShmXP8DO6H_zTSzlth9pwRtWBN3T5Khrsg_wcA72Yxm8GyCRxvUHfdiy6J1SAqJCgPnKvV32_BG0RPbbN542vXxV6Jvm_FZ14FT-ohiV4B9L2mt__rDBBiYjgbfr_B7WR0IwIbSHENYMXM6R-R09X4mlR4Eqc7z7JyM8pO58yDcZB7XD7UQyohhNcaa0MQEXBbpfkF1Cw3FGYnJem4z98-PdTTKUdbugPOUM-3Mq8mKik5PG2iOUcbKLJvn011IeMKC-2SIoDMA3LEuQu77rOpk6UeYw4oDrrpRwPRBnqi0lTrWPZZ-L84W6v5X-b9mQfXDMqqJAnvd0cnaK3rUS_gihG6d4-2jEqVJRQmiAwToSR8Pw_62gXS2YbDXVO6PcpcSrTeYcsaD1Da-Zfs3jVeNNCi6f7wWO9wuCWQNigm8D_-VKD9dSgdV-XM2VJzNdVQ8qJ4aFpR9h1qHbNQBYKw5-lT914k_bcufFXh-VQIbjS5yru_Nh5ua_k3rWfGil24w5gd47IZPQ3lnVSyjVkmdw4-RGVoy32Gk10g1q8dWDgKqEKhJGz3UUL8GZ-WdZG5i-6gH7DvMA14W6UQHNzHWFgnP2B3tZ8r46u2clFXejG244ZV3T43myzSlUAVMFNibPpDfI6tfxuOR5yzFA9Nw3xLmUvpWbvKMHF75Lq5Lba1xhFjsdSXj0PhNXCr3y_YhrY7l_iFOaDJDqiyLm3n9U5EoKGqIO8P_oURy8yIdsSNhPcJ6KG_JXEZmA',
+    'SIDCC': 'AKEyXzUeznFJFFkd44FnqaCbO6tM-VGd848eZbrwQ_KaCdljpDiUFT0n62mvjGyPCvLmmJXKlTzq',
+    '__Secure-1PSIDCC': 'AKEyXzXG5Wm_OVaQ0WiH0whvEiBd1zENJvLHY7hfE2kkH2I_kBfnIa9TLDH80Vbdrx2B1l640s0',
+    '__Secure-3PSIDCC': 'AKEyXzWhagyMbpyxZltfL1amDWojg2eDGika8OeEXsqvmCLnSX4TAOfPPlNkVL-OvFY43Nqkymg',
+    }
     # cookies = {
     #     'SEARCH_SAMESITE': 'CgQIz5sB',
     #     'SID': 'g.a000lwjdiTeS8gzovagXU7DAcImQU34FudJKrB7QeHQu6mnoxDlKkeYcGTrffPiL7c-iy8nkPwACgYKAc4SARMSFQHGX2Mi0lHmlHoE2tp4-QzF7BNbTxoVAUF8yKpb7CjEiCsmUHH1pThSyeH00076',
